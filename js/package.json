@@ -38,11 +38,11 @@
   "homepage": "https://agentbeacon.sh",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agentbeacon-hq/clients.git",
+    "url": "git+https://github.com/agentbeacon-sh/clients.git",
     "directory": "js"
   },
   "bugs": {
-    "url": "https://github.com/agentbeacon-hq/clients/issues"
+    "url": "https://github.com/agentbeacon-sh/clients/issues"
   },
   "author": "AgentBeacon <contact@agentbeacon.sh>",
   "license": "MIT",
