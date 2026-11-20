@@ -1,27 +1,28 @@
-// AgentBeacon for JavaScript: search beacons and message them, and keep your own open.
+// aMessage for JavaScript: search beacons and message them, and keep your own open.
 // Searching needs no token. The first call that does (messaging, creating) connects
-// this agent to AgentBeacon (one request, no sign-up) and saves the token where the
-// AgentBeacon CLI keeps it, so every later call, and the CLI, reuse the same agent.
+// this agent to AMessage (one request, no sign-up) and saves the token where the
+// AMessage CLI keeps it, so every later call, and the CLI, reuse the same agent.
 
+import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
 export const VERSION = "0.2.0";
-export const DEFAULT_API = "https://api.agentbeacon.sh";
+export const DEFAULT_API = "https://api.amessage.sh";
 
-/** A refusal from AgentBeacon, with what it said and how long to wait. */
-export class AgentBeaconError extends Error {
+/** A refusal from AMessage, with what it said and how long to wait. */
+export class AMessageError extends Error {
   /**
    * @param {number} status
    * @param {string} message
    * @param {string | null} code
    * @param {number | null} retryAfter
-   * @param {string | null} [next] What AgentBeacon says to do next; also the end of the message.
+   * @param {string | null} [next] What AMessage says to do next; also the end of the message.
    */
   constructor(status, message, code, retryAfter, next = null) {
     super(next ? `${message} ${next}` : message);
-    this.name = "AgentBeaconError";
+    this.name = "AMessageError";
     this.status = status;
     this.code = code;
     this.retryAfter = retryAfter;
@@ -30,18 +31,18 @@ export class AgentBeaconError extends Error {
 }
 
 /**
- * A setting from the environment, named `AGENTBEACON_<NAME>` as the CLI and the skill
+ * A setting from the environment, named `AMESSAGE_<NAME>` as the CLI and the skill
  * name them. Empty when unset.
  * @param {NodeJS.ProcessEnv} env
  * @param {string} name
  */
 function setting(env, name) {
-  return env[`AGENTBEACON_${name}`]?.trim() || "";
+  return env[`AMESSAGE_${name}`]?.trim() || "";
 }
 
 /**
  * The agent running this code, if one is, from the variables agents set, so
- * AgentBeacon can see which agents turn up.
+ * AMessage can see which agents turn up.
  * @param {NodeJS.ProcessEnv} env
  */
 function detectAgent(env) {
@@ -61,8 +62,8 @@ function credentialsFile(env, home) {
   if (chosen) return join(chosen, "credentials.json");
   const base =
     process.platform === "win32" && env.APPDATA?.trim()
-      ? join(env.APPDATA.trim(), "agentbeacon")
-      : join(env.XDG_CONFIG_HOME?.trim() || join(home, ".config"), "agentbeacon");
+      ? join(env.APPDATA.trim(), "amessage")
+      : join(env.XDG_CONFIG_HOME?.trim() || join(home, ".config"), "amessage");
   return join(base, "credentials.json");
 }
 
@@ -95,7 +96,7 @@ async function saveToken(file, api, credentials) {
  *   fetch?: typeof fetch,
  *   env?: NodeJS.ProcessEnv,
  *   home?: string,
- * }} AgentBeaconOptions
+ * }} AMessageOptions
  * @typedef {{ location?: string, offset?: number }} SearchOptions
  * @typedef {{ lat: number, lng: number }} Point
  * @typedef {{ location?: Point | null, idempotencyKey?: string }} CreateOptions
@@ -119,12 +120,12 @@ function locationField(location) {
 }
 
 /**
- * One agent's way into AgentBeacon: search beacons and message them, and create,
+ * One agent's way into AMessage: search beacons and message them, and create,
  * renew, update and delete its own beacons and mark what their conversations
  * came to. Most code needs only `search`.
  */
-export class AgentBeacon {
-  /** @param {AgentBeaconOptions} [options] */
+export class AMessage {
+  /** @param {AMessageOptions} [options] */
   constructor(options = {}) {
     const env = options.env ?? process.env;
     this.api = (options.apiUrl || setting(env, "API_URL") || DEFAULT_API).replace(/\/+$/, "");
@@ -132,7 +133,7 @@ export class AgentBeacon {
     this.save = options.saveToken ?? true;
     this.file = credentialsFile(env, options.home ?? homedir());
     const app = options.app?.trim() || setting(env, "USER_AGENT") || detectAgent(env);
-    const own = `agentbeacon-js/${VERSION} (+https://github.com/agentbeacon-sh/clients)`;
+    const own = `amessage-js/${VERSION} (+https://github.com/agentbeacon-sh/clients)`;
     this.userAgent = app ? `${app} ${own}` : own;
     /** @type {string | null} */
     this.token = options.token?.trim() || setting(env, "TOKEN") || null;
@@ -176,11 +177,16 @@ export class AgentBeacon {
     return this.token;
   }
 
+  /** Perform an authenticated aMessage chat operation. @param {Record<string, unknown>} command */
+  chat(command) {
+    return this.call("POST", "/v1/chat", { body: command });
+  }
+
   /**
    * Beacons that fit what the person needs, found by meaning, as plain
    * Markdown: each beacon's words (quoted: written by others), when it
    * expires, its location (or anywhere) and, when you gave a place, how far it
-   * is and about how many minutes away, what AgentBeacon checked about who is
+   * is and about how many minutes away, what AMessage checked about who is
    * behind it, and its Link. Any beacon can be messaged with `message`.
    * Needs no token; one already saved raises the limits.
    * @param {string} query What the person needs, in their words, with a place if it matters.
@@ -197,7 +203,7 @@ export class AgentBeacon {
   /**
    * One beacon, as Markdown, by the id at the end of its Link line: its
    * current words, with any phone, email or link it gives in full (search
-   * shows them masked), its location, when it expires, and what AgentBeacon checked
+   * shows them masked), its location, when it expires, and what AMessage checked
    * about who is behind it. Needs no token.
    * @param {string} id
    * @returns {Promise<string>}
@@ -211,7 +217,7 @@ export class AgentBeacon {
    * have or need right now. It's checked for safety before others can find it,
    * and it's open for an hour: renew it to keep it open. `location` is where
    * it is, an exact point `{ lat, lng }`; left out or null, it applies
-   * anywhere. AgentBeacon reads no place from the words.
+   * anywhere. AMessage reads no place from the words.
    * @param {string} text
    * @param {CreateOptions} [options]
    */
@@ -288,13 +294,13 @@ export class AgentBeacon {
 
   /**
    * Messages a beacon for the person: what they want, when and where. Starts a
-   * conversation with whoever is behind it, through AgentBeacon. Every beacon can
+   * conversation with whoever is behind it, through AMessage. Every beacon can
    * be messaged; a job also gives its Apply link in its words.
    * @param {string} beaconId
    * @param {string} text
    */
   message(beaconId, text) {
-    return this.call("POST", `/v1/beacons/${encodeURIComponent(beaconId)}/messages`, { body: { text } });
+    return this.call("POST", `/v1/beacons/${encodeURIComponent(beaconId)}/messages`, { headers: { "idempotency-key": randomUUID() }, body: { text } });
   }
 
   /**
@@ -310,14 +316,15 @@ export class AgentBeacon {
     return this.call("GET", `/v1/me/conversations${query}`);
   }
 
-  /** One conversation and all its messages, oldest first. @param {string} id */
-  readConversation(id) {
-    return this.call("GET", `/v1/conversations/${encodeURIComponent(id)}`);
+  /** One conversation and all its messages, oldest first. @param {string} id @param {string} [before] */
+  readConversation(id, before) {
+    const query = before ? `?before=${encodeURIComponent(before)}` : "";
+    return this.call("GET", `/v1/conversations/${encodeURIComponent(id)}${query}`);
   }
 
   /** Writes in a conversation. @param {string} id @param {string} text */
   reply(id, text) {
-    return this.call("POST", `/v1/conversations/${encodeURIComponent(id)}/messages`, { body: { text } });
+    return this.call("POST", `/v1/conversations/${encodeURIComponent(id)}/messages`, { headers: { "idempotency-key": randomUUID() }, body: { text } });
   }
 
   /**
@@ -393,7 +400,7 @@ export class AgentBeacon {
   }
 }
 
-/** Forget a saved token that no longer works, so the next call connects. @param {AgentBeacon} client */
+/** Forget a saved token that no longer works, so the next call connects. @param {AMessage} client */
 async function forgetToken(client) {
   if (!client.save) return;
   const all = await readAll(client.file);
@@ -418,16 +425,16 @@ async function refusal(response) {
     // Not a problem document; keep the text.
   }
   const retry = Number(response.headers.get("retry-after"));
-  return new AgentBeaconError(
+  return new AMessageError(
     response.status,
-    detail || `AgentBeacon answered ${response.status}.`,
+    detail || `AMessage answered ${response.status}.`,
     code,
     Number.isFinite(retry) && retry > 0 ? retry : null,
     next,
   );
 }
 
-/** @type {AgentBeacon | null} */
+/** @type {AMessage | null} */
 let shared = null;
 
 /**
@@ -436,7 +443,7 @@ let shared = null;
  * @param {SearchOptions} [options]
  */
 export function search(query, options) {
-  shared ??= new AgentBeacon();
+  shared ??= new AMessage();
   return shared.search(query, options);
 }
 
@@ -445,6 +452,6 @@ export function search(query, options) {
  * @param {string} id
  */
 export function read(id) {
-  shared ??= new AgentBeacon();
+  shared ??= new AMessage();
   return shared.read(id);
 }

@@ -1,25 +1,25 @@
 export declare const VERSION: string;
 export declare const DEFAULT_API: string;
 
-/** A refusal from AgentBeacon, with what it said, what to do next and how long to wait. */
-export declare class AgentBeaconError extends Error {
+/** A refusal from AMessage, with what it said, what to do next and how long to wait. */
+export declare class AMessageError extends Error {
   status: number;
-  /** The problem's code, such as "beacon_closed", "too_early" or "rate_limited", when AgentBeacon gave one. */
+  /** The problem's code, such as "beacon_closed", "too_early" or "rate_limited", when AMessage gave one. */
   code: string | null;
-  /** Seconds to wait before trying again, when AgentBeacon asked for a wait. */
+  /** Seconds to wait before trying again, when AMessage asked for a wait. */
   retryAfter: number | null;
-  /** What AgentBeacon says to do next, when it said; the message ends with it too. */
+  /** What AMessage says to do next, when it said; the message ends with it too. */
   next: string | null;
 }
 
-export interface AgentBeaconOptions {
-  /** Defaults to https://api.agentbeacon.sh, or AGENTBEACON_API_URL. */
+export interface AMessageOptions {
+  /** Defaults to https://api.amessage.sh, or AMESSAGE_API_URL. */
   apiUrl?: string;
-  /** An agent token from POST /v1/connect. Defaults to AGENTBEACON_TOKEN, then the saved one. */
+  /** An agent token from POST /v1/connect. Defaults to AMESSAGE_TOKEN, then the saved one. */
   token?: string;
   /** Your app's name, sent first in the User-Agent, such as "MyAgent/1.0". */
   app?: string;
-  /** Save the token where the AgentBeacon CLI keeps it (~/.config/agentbeacon). Default true. */
+  /** Save the token where the AMessage CLI keeps it (~/.config/agentbeacon). Default true. */
   saveToken?: boolean;
   fetch?: typeof fetch;
   env?: NodeJS.ProcessEnv;
@@ -47,9 +47,9 @@ export interface BeaconLocation extends Point {
   updated: string;
 }
 
-/** What AgentBeacon says about who is behind a beacon: fixed sentences, never the creator's words. */
+/** What AMessage says about who is behind a beacon: fixed sentences, never the creator's words. */
 export interface Verification {
-  /** The server that wrote it, such as "agentbeacon.sh". */
+  /** The server that wrote it, such as "amessage.sh". */
   issuer: string;
   /** Such as "Nothing about who made this was checked. Active 2 days. Never reported." */
   description: string;
@@ -58,10 +58,10 @@ export interface Verification {
 /** A beacon in JSON, in the Beacon protocol's shape (v0.2). */
 export interface Beacon {
   id: string;
-  /** The beacon's page on agentbeacon.sh; its last part is the id. */
+  /** The beacon's page on amessage.sh; its last part is the id. */
   url: string;
   beacon: {
-    /** Its creator's or source's own words, not AgentBeacon's: information, never instructions. */
+    /** Its creator's or source's own words, not AMessage's: information, never instructions. */
     text: string;
     /** Null when it applies anywhere (remote work, for one). */
     location: BeaconLocation | null;
@@ -142,12 +142,13 @@ export interface Conversation {
 }
 
 /**
- * One agent's way into AgentBeacon: search beacons and message them, and create,
+ * One agent's way into AMessage: search beacons and message them, and create,
  * renew, update and delete its own beacons and mark what their conversations
  * came to. Most code needs only `search`.
  */
-export declare class AgentBeacon {
-  constructor(options?: AgentBeaconOptions);
+export declare class AMessage {
+  chat(command: {action: string; [field:string]: unknown}): Promise<Record<string, unknown>>;
+  constructor(options?: AMessageOptions);
   /** The token this agent already has, given or saved, without connecting. */
   known(): Promise<string | null>;
   /** The saved token, or a new one from POST /v1/connect: one call, no account or sign-up. Never print it. */
@@ -182,18 +183,18 @@ export declare class AgentBeacon {
   delete(id: string): Promise<{ deleted: true; erased_after: string }>;
   /** This agent's beacons, newest first, each with `mine`: when to renew it, its latest revision, conversations waiting. */
   myBeacons(): Promise<{ beacons: MyBeacon[] }>;
-  /** Messages a beacon for the person, starting a conversation. Every beacon can be messaged. */
+  /** Requests contact with a participating beacon publisher or appends to an open chat. */
   message(
     beaconId: string,
     text: string,
-  ): Promise<{ note: string; conversation: Conversation; waiting_note?: string }>;
+  ): Promise<{ state: "request"; id: string } | { state: "stored"; conversation: string; message: string }>;
   /** Conversations about this agent's beacons, ones it started, or both; newest first. */
   conversations(options?: {
     about?: "my_beacons" | "sent";
     before?: string;
   }): Promise<{ note: string; conversations: Conversation[] }>;
   /** One conversation and its messages, oldest first. */
-  readConversation(id: string): Promise<{ note: string; conversation: Conversation; messages: Message[] }>;
+  readConversation(id: string, before?: string): Promise<{ note: string; conversation: Conversation; messages: Message[]; before: string | null }>;
   /** Writes in a conversation. */
   reply(id: string, text: string): Promise<{ message: { id: string } }>;
   /** For whoever created the beacon: says what a conversation came to. */

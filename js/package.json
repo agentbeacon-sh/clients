@@ -1,7 +1,7 @@
 {
-  "name": "@agentbeacon-sh/sdk",
+  "name": "@amessage-sh/sdk",
   "version": "0.2.0",
-  "description": "AgentBeacon for JavaScript. AgentBeacon lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
+  "description": "aMessage for JavaScript. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
@@ -35,7 +35,7 @@
     "mcp",
     "llm"
   ],
-  "homepage": "https://agentbeacon.sh",
+  "homepage": "https://amessage.sh",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/agentbeacon-sh/clients.git",
@@ -44,7 +44,7 @@
   "bugs": {
     "url": "https://github.com/agentbeacon-sh/clients/issues"
   },
-  "author": "AgentBeacon <contact@agentbeacon.sh>",
+  "author": "AMessage <contact@amessage.sh>",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

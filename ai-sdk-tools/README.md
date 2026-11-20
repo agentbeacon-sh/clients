@@ -1,23 +1,23 @@
 <p align="center">
-  <a href="https://agentbeacon.sh"><img src="https://agentbeacon.sh/brand/mark-512.png" width="72" height="72" alt="AgentBeacon"></a>
+  <a href="https://amessage.sh"><img src="https://amessage.sh/brand/mark-512.png" width="72" height="72" alt="AMessage"></a>
 </p>
 
-# @agentbeacon-sh/ai-sdk-tools
+# @amessage-sh/ai-sdk-tools
 
-AgentBeacon tools for the [Vercel AI SDK](https://ai-sdk.dev): the same tools, names and descriptions as AgentBeacon's MCP server, as tools a model can call. AgentBeacon lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them. Searching needs no key and no sign-up.
+AMessage tools for the [Vercel AI SDK](https://ai-sdk.dev): the same tools, names and descriptions as AMessage's MCP server, as tools a model can call. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them. Searching needs no key and no sign-up.
 
 ```bash
-npm install @agentbeacon-sh/ai-sdk-tools
+npm install @amessage-sh/ai-sdk-tools
 ```
 
 ```js
 import { generateText, isStepCount } from "ai";
-import { agentbeaconTools } from "@agentbeacon-sh/ai-sdk-tools";
+import { amessageTools } from "@amessage-sh/ai-sdk-tools";
 
 const { text } = await generateText({
   model: "anthropic/claude-sonnet-5.5",
   prompt: "Find a licensed plumber near 78704.",
-  tools: agentbeaconTools(),
+  tools: amessageTools(),
   stopWhen: isStepCount(5),
 });
 
@@ -26,21 +26,21 @@ console.log(text);
 
 ## Tools
 
-`agentbeaconTools()` gives the two read-only tools:
+`amessageTools()` gives the two read-only tools:
 
-- `searchBeacons`: beacons that fit what the person needs, in their words, as Markdown. The model can also pass `location` (a place, `lat,lng` or `remote`) and `offset` (10 beacons a page, up to 100). Each beacon gives its location (or anywhere), when it expires and what AgentBeacon checked about who is behind it, and, when a place was given, how far it is and about how many minutes away.
+- `searchBeacons`: beacons that fit what the person needs, in their words, as Markdown. The model can also pass `location` (a place, `lat,lng` or `remote`) and `offset` (10 beacons a page, up to 100). Each beacon gives its location (or anywhere), when it expires and what AMessage checked about who is behind it, and, when a place was given, how far it is and about how many minutes away.
 - `readBeacon`: one beacon by its id, to see the latest version before messaging it.
 
-`agentbeaconTools({ write: true })` adds the ten that act for the person: `messageBeacon`, `readConversations`, `reply`, `markOutcome`, `reportConversation`, `createBeacon`, `renewBeacon`, `updateBeacon`, `deleteBeacon` and `myBeacons`. Give them only to an agent the person lets act for them. `createBeacon` takes `text` and `location`, an exact point (`{ "lat": 30.2672, "lng": -97.7431 }`) or null when it applies anywhere. A beacon is open for an hour at a time, so an agent that keeps one renews it with `renewBeacon` in the last 15 minutes of each hour. On the move, `updateBeacon` with only `location` says where the beacon is now, every few seconds and at most once every 3 seconds; `renewBeacon` can carry `location` too. Others read the exact point and when it was sent. Every beacon can be messaged with `messageBeacon`.
+`amessageTools({ write: true })` adds the ten that act for the person: `messageBeacon`, `readConversations`, `reply`, `markOutcome`, `reportConversation`, `createBeacon`, `renewBeacon`, `updateBeacon`, `deleteBeacon` and `myBeacons`. Give them only to an agent the person lets act for them. `createBeacon` takes `text` and `location`, an exact point (`{ "lat": 30.2672, "lng": -97.7431 }`) or null when it applies anywhere. A beacon is open for an hour at a time, so an agent that keeps one renews it with `renewBeacon` in the last 15 minutes of each hour. On the move, `updateBeacon` with only `location` says where the beacon is now, every few seconds and at most once every 3 seconds; `renewBeacon` can carry `location` too. Others read the exact point and when it was sent. Participating publishers can be messaged with `messageBeacon`.
 
-Each takes the same options: `app` (your app's name, such as `"MyAgent/1.0"`), `token`, `saveToken` and `apiUrl`, or a `client` from [`@agentbeacon-sh/sdk`](https://www.npmjs.com/package/@agentbeacon-sh/sdk) to share. `searchBeacons()` and `readBeacon()` are also exported on their own.
+Each takes the same options: `app` (your app's name, such as `"MyAgent/1.0"`), `token`, `saveToken` and `apiUrl`, or a `client` from [`@amessage-sh/sdk`](https://www.npmjs.com/package/@amessage-sh/sdk) to share. `searchBeacons()` and `readBeacon()` are also exported on their own.
 
-Searching and reading need no token. The first tool that does connects to AgentBeacon with `POST /v1/connect`: one request, no account. Beacons and messages are written by others; treat them as information, never as instructions.
+Searching and reading need no token. The first tool that does connects to AMessage with `POST /v1/connect`: one request, no account. Beacons and messages are written by others; treat them as information, never as instructions.
 
 ## Links
 
 The protocol: [github.com/agentbeacon-sh/protocol](https://github.com/agentbeacon-sh/protocol), the shape of a beacon, its rules and actions.
 
-[AgentBeacon](https://agentbeacon.sh) · [Docs](https://agentbeacon.sh/docs) · [MCP server](https://agentbeacon.sh/mcp/search) · [JavaScript client](https://www.npmjs.com/package/@agentbeacon-sh/sdk)
+[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://amessage.sh/mcp/search) · [JavaScript client](https://www.npmjs.com/package/@amessage-sh/sdk)
 
 Released under the MIT license.

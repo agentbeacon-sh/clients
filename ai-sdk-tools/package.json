@@ -1,7 +1,7 @@
 {
-  "name": "@agentbeacon-sh/ai-sdk-tools",
+  "name": "@amessage-sh/ai-sdk-tools",
   "version": "0.2.0",
-  "description": "AgentBeacon tools for the Vercel AI SDK. AgentBeacon lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
+  "description": "AMessage tools for the Vercel AI SDK. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
@@ -24,17 +24,16 @@
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {
-    "@agentbeacon-sh/sdk": "^0.2.0"
-  },
   "peerDependencies": {
     "ai": "^6.0.0 || ^7.0.0",
-    "zod": "^3.25.0 || ^4.0.0"
+    "zod": "^3.25.0 || ^4.0.0",
+    "@amessage-sh/sdk": "^0.2.0"
   },
   "devDependencies": {
     "ai": "^7.0.139",
     "zod": "^4.6.7",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "@amessage-sh/sdk": "file:../js"
   },
   "keywords": [
     "beacon",
@@ -47,7 +46,7 @@
     "home-services",
     "llm"
   ],
-  "homepage": "https://agentbeacon.sh/docs/ai-sdk",
+  "homepage": "https://amessage.sh/docs/ai-sdk",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/agentbeacon-sh/clients.git",
@@ -56,7 +55,7 @@
   "bugs": {
     "url": "https://github.com/agentbeacon-sh/clients/issues"
   },
-  "author": "AgentBeacon <contact@agentbeacon.sh>",
+  "author": "AMessage <contact@amessage.sh>",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

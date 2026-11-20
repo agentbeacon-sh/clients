@@ -1,9 +1,9 @@
-import type { AgentBeacon, AgentBeaconOptions, Outcome, Point } from "@agentbeacon-sh/sdk";
+import type { AMessage, AMessageOptions, Outcome, Point } from "@amessage-sh/sdk";
 import type { Tool } from "ai";
 
-export interface AgentBeaconToolOptions extends Pick<AgentBeaconOptions, "app" | "token" | "saveToken" | "apiUrl"> {
+export interface AMessageToolOptions extends Pick<AMessageOptions, "app" | "token" | "saveToken" | "apiUrl"> {
   /** A client to use instead of a new one, such as one shared with your own code. */
-  client?: AgentBeacon;
+  client?: AMessage;
 }
 
 export interface SearchBeaconsInput {
@@ -22,6 +22,7 @@ export type ReadTools = {
 };
 
 export type WriteTools = {
+  agentChat: Tool<{command: {action:string;[field:string]:unknown}},unknown>;
   messageBeacon: Tool<{ beaconId: string; text: string }, unknown>;
   readConversations: Tool<{ about?: "my_beacons" | "sent"; before?: string; conversationId?: string }, unknown>;
   reply: Tool<{ conversationId: string; text: string }, unknown>;
@@ -38,9 +39,9 @@ export type WriteTools = {
 };
 
 /** Search beacons by meaning. Returns plain Markdown. */
-export declare function searchBeacons(options?: AgentBeaconToolOptions): ReadTools["searchBeacons"];
+export declare function searchBeacons(options?: AMessageToolOptions): ReadTools["searchBeacons"];
 /** Read one beacon by its id. Returns plain Markdown. */
-export declare function readBeacon(options?: AgentBeaconToolOptions): ReadTools["readBeacon"];
+export declare function readBeacon(options?: AMessageToolOptions): ReadTools["readBeacon"];
 /** searchBeacons and readBeacon, sharing one client; with `write: true`, also the ten that act for the person. */
-export declare function agentbeaconTools(options: AgentBeaconToolOptions & { write: true }): ReadTools & WriteTools;
-export declare function agentbeaconTools(options?: AgentBeaconToolOptions & { write?: false }): ReadTools;
+export declare function amessageTools(options: AMessageToolOptions & { write: true }): ReadTools & WriteTools;
+export declare function amessageTools(options?: AMessageToolOptions & { write?: false }): ReadTools;
