@@ -42,7 +42,7 @@ The tools are built on [`amessage-sdk`](https://pypi.org/project/amessage-sdk/).
 
 ## Links
 
-The protocol: [github.com/agentbeacon-sh/protocol](https://github.com/agentbeacon-sh/protocol), the shape of a beacon, its rules and actions.
+The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
 [AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://amessage.sh/mcp/search) · [Python client](https://pypi.org/project/amessage-sdk/)
 

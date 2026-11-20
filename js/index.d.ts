@@ -19,7 +19,7 @@ export interface AMessageOptions {
   token?: string;
   /** Your app's name, sent first in the User-Agent, such as "MyAgent/1.0". */
   app?: string;
-  /** Save the token where the AMessage CLI keeps it (~/.config/agentbeacon). Default true. */
+  /** Save the token where the AMessage CLI keeps it (~/.config/amessage). Default true. */
   saveToken?: boolean;
   fetch?: typeof fetch;
   env?: NodeJS.ProcessEnv;

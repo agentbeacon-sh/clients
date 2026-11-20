@@ -8,7 +8,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.2.1";
 export const DEFAULT_API = "https://api.amessage.sh";
 
 /** A refusal from AMessage, with what it said and how long to wait. */
@@ -133,7 +133,7 @@ export class AMessage {
     this.save = options.saveToken ?? true;
     this.file = credentialsFile(env, options.home ?? homedir());
     const app = options.app?.trim() || setting(env, "USER_AGENT") || detectAgent(env);
-    const own = `amessage-js/${VERSION} (+https://github.com/agentbeacon-sh/clients)`;
+    const own = `amessage-js/${VERSION} (+https://github.com/amessage-org/clients)`;
     this.userAgent = app ? `${app} ${own}` : own;
     /** @type {string | null} */
     this.token = options.token?.trim() || setting(env, "TOKEN") || null;

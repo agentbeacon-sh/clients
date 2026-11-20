@@ -112,7 +112,7 @@ class FindingTest(ClientTest):
         api = FakeApi()
         _, op = self.client(api, app="JobFinder/1.0")
         op.search("line cook jobs in Austin")
-        self.assertRegex(api.calls[0][2]["User-Agent"], r"^JobFinder/1\.0 amessage-python/0\.2\.0")
+        self.assertRegex(api.calls[0][2]["User-Agent"], r"^JobFinder/1\.0 amessage-python/0\.2\.1")
 
 
 class ConnectingTest(ClientTest):

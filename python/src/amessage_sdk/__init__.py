@@ -27,7 +27,7 @@ from typing import Callable, Optional, Union
 
 __all__ = ["AMessage", "AMessageError", "search", "read", "UNSET", "VERSION", "DEFAULT_API"]
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 DEFAULT_API = "https://api.amessage.sh"
 OUTCOMES = ("accepted", "booked", "hired", "declined", "spam")
 
@@ -184,7 +184,7 @@ class AMessage:
         self.save = save_token
         self.file = _credentials_file(env, home or Path.home())
         name = (app or "").strip() or _setting(env, "USER_AGENT") or _detect_agent(env)
-        own = f"amessage-python/{VERSION} (+https://github.com/agentbeacon-sh/clients)"
+        own = f"amessage-python/{VERSION} (+https://github.com/amessage-org/clients)"
         self.user_agent = f"{name} {own}" if name else own
         self.token = (token or "").strip() or _setting(env, "TOKEN") or None
         self._lock = threading.Lock()

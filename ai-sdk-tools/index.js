@@ -139,10 +139,10 @@ const TOOLS = {
   },
 };
 
-/** @param {keyof typeof TOOLS} name @param {AMessage} agentbeacon */
-function make(name, agentbeacon) {
+/** @param {keyof typeof TOOLS} name @param {AMessage} amessage */
+function make(name, amessage) {
   const { description, inputSchema, run } = TOOLS[name];
-  return tool({ description, inputSchema, execute: (input) => run(agentbeacon, input) });
+  return tool({ description, inputSchema, execute: (input) => run(amessage, input) });
 }
 
 /**
@@ -164,10 +164,10 @@ export const readBeacon = (options = {}) => make("readBeacon", clientFor(options
  * @param {AMessageToolOptions & { write?: boolean }} [options]
  */
 export function amessageTools({ write = false, ...options } = {}) {
-  const agentbeacon = clientFor(options);
+  const amessage = clientFor(options);
   return Object.fromEntries(
     Object.entries(TOOLS)
       .filter(([, t]) => write || !t.write)
-      .map(([name]) => [name, make(name, agentbeacon)]),
+      .map(([name]) => [name, make(name, amessage)]),
   );
 }

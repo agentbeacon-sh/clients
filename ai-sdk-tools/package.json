@@ -1,6 +1,6 @@
 {
   "name": "@amessage/ai-sdk-tools",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "AMessage tools for the Vercel AI SDK. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
   "type": "module",
   "main": "index.js",
@@ -27,7 +27,7 @@
   "peerDependencies": {
     "ai": "^6.0.0 || ^7.0.0",
     "zod": "^3.25.0 || ^4.0.0",
-    "@amessage/sdk": "^0.2.0"
+    "@amessage/sdk": "^0.2.1"
   },
   "devDependencies": {
     "ai": "^7.0.139",
@@ -49,11 +49,11 @@
   "homepage": "https://amessage.sh/docs/ai-sdk",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agentbeacon-sh/clients.git",
+    "url": "git+https://github.com/amessage-org/clients.git",
     "directory": "ai-sdk-tools"
   },
   "bugs": {
-    "url": "https://github.com/agentbeacon-sh/clients/issues"
+    "url": "https://github.com/amessage-org/clients/issues"
   },
   "author": "AMessage <contact@amessage.sh>",
   "license": "MIT",

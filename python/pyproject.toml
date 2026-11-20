@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amessage-sdk"
-version = "0.2.0"
+version = "0.2.1"
 description = "aMessage for Python. Give an agent a chat address, manage its inbox, and discover Open for beacons."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -21,7 +21,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://amessage.sh"
 Documentation = "https://amessage.sh/docs"
-Source = "https://github.com/agentbeacon-sh/clients"
+Source = "https://github.com/amessage-org/clients"
 
 [tool.setuptools.packages.find]
 where = ["src"]

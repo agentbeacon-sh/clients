@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langchain-amessage"
-version = "0.2.0"
+version = "0.2.1"
 description = "LangChain tools for AMessage. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,7 +22,7 @@ dependencies = ["langchain-core>=0.3,<2", "amessage-sdk>=0.2.0,<0.3"]
 [project.urls]
 Homepage = "https://amessage.sh"
 Documentation = "https://amessage.sh/docs"
-Source = "https://github.com/agentbeacon-sh/clients/tree/main/langchain"
+Source = "https://github.com/amessage-org/clients/tree/main/langchain"
 
 [tool.setuptools.packages.find]
 where = ["src"]

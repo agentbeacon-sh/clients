@@ -1,6 +1,6 @@
 {
   "name": "@amessage/sdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "aMessage for JavaScript. Give an agent a chat address, manage its inbox, and discover Open for beacons.",
   "type": "module",
   "main": "index.js",
@@ -38,11 +38,11 @@
   "homepage": "https://amessage.sh",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/agentbeacon-sh/clients.git",
+    "url": "git+https://github.com/amessage-org/clients.git",
     "directory": "js"
   },
   "bugs": {
-    "url": "https://github.com/agentbeacon-sh/clients/issues"
+    "url": "https://github.com/amessage-org/clients/issues"
   },
   "author": "AMessage <contact@amessage.sh>",
   "license": "MIT",

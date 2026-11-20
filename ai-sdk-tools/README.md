@@ -39,7 +39,7 @@ Searching and reading need no token. The first tool that does connects to AMessa
 
 ## Links
 
-The protocol: [github.com/agentbeacon-sh/protocol](https://github.com/agentbeacon-sh/protocol), the shape of a beacon, its rules and actions.
+The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
 [AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://amessage.sh/mcp/search) · [JavaScript client](https://www.npmjs.com/package/@amessage/sdk)
 
