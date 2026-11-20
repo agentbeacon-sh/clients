@@ -4,18 +4,18 @@ import unittest
 from pathlib import Path
 from urllib.parse import urlparse
 
-from agentbeacon_sdk import AgentBeacon, AgentBeaconError
+from amessage_sdk import AMessage, AMessageError
 
 PAGE = '# Beacons for "plumber free tomorrow near 78704"\n\nRead as: near Austin, TX 78704. 1 beacon.\n'
 BEACON = {
     "id": "b1",
-    "url": "https://agentbeacon.sh/beacon/b1",
+    "url": "https://amessage.sh/beacon/b1",
     "beacon": {
         "text": "Free tomorrow 9–12 for leaks and clogs",
         "location": {"lat": 30.2416, "lng": -97.7695, "updated": "2026-10-19T16:00:00Z"},
         "expires": "2026-10-19T17:00:00Z",
     },
-    "verification": {"issuer": "agentbeacon.sh", "description": "Nothing about who made this was checked. Active 1 day. Never reported."},
+    "verification": {"issuer": "amessage.sh", "description": "Nothing about who made this was checked. Active 1 day. Never reported."},
     "mine": {
         "closed": False,
         "renew_from": "2026-10-19T16:45:00Z",
@@ -29,7 +29,7 @@ POINT = {"lat": 30.2416, "lng": -97.7695}
 
 
 class FakeApi:
-    """A stand-in for the AgentBeacon API that records what it was asked and answers like the
+    """A stand-in for the AMessage API that records what it was asked and answers like the
     beacon contract. Searching and reading need no token; a token that is sent must be valid."""
 
     def __init__(self, tokens=("agt_first", "agt_second"), refuse=None):
@@ -71,8 +71,8 @@ class FakeApi:
 
 class ClientTest(unittest.TestCase):
     def client(self, api, **extra):
-        home = Path(tempfile.mkdtemp(prefix="agentbeacon-py-"))
-        return home, AgentBeacon(send=api, env={}, home=home, **extra)
+        home = Path(tempfile.mkdtemp(prefix="amessage-py-"))
+        return home, AMessage(send=api, env={}, home=home, **extra)
 
 
 class FindingTest(ClientTest):
@@ -87,32 +87,32 @@ class FindingTest(ClientTest):
         )
         self.assertNotIn("Authorization", api.calls[0][2])
         self.assertEqual(api.calls[0][2]["Accept"], "text/markdown")
-        self.assertFalse((home / ".config/agentbeacon/credentials.json").exists())
+        self.assertFalse((home / ".config/amessage/credentials.json").exists())
 
     def test_sends_a_token_it_already_has_and_finds_without_it_when_revoked(self):
         api = FakeApi()
         home, op = self.client(api)
         op.my_beacons()
-        AgentBeacon(send=api, env={}, home=home).search("movers")
+        AMessage(send=api, env={}, home=home).search("movers")
         self.assertEqual(api.calls[-1][2]["Authorization"], "Bearer agt_first")
         _, stale = self.client(api, token="agt_revoked")
         self.assertEqual(stale.search("movers"), PAGE)
         self.assertNotIn("Authorization", api.calls[-1][2])
         self.assertEqual(api.connects(), 1)
 
-    def test_uses_agentbeacon_token_and_ignores_the_old_name(self):
+    def test_uses_amessage_token_and_ignores_the_old_name(self):
         api = FakeApi()
-        AgentBeacon(send=api, env={"AGENTBEACON_TOKEN": "agt_env"}, home=Path(tempfile.mkdtemp())).search("movers")
+        AMessage(send=api, env={"AMESSAGE_TOKEN": "agt_env"}, home=Path(tempfile.mkdtemp())).search("movers")
         self.assertEqual(api.calls[0][2]["Authorization"], "Bearer agt_env")
         old = FakeApi()
-        AgentBeacon(send=old, env={"OPENPATH_TOKEN": "agt_env"}, home=Path(tempfile.mkdtemp())).search("movers")
+        AMessage(send=old, env={"OPENPATH_TOKEN": "agt_env"}, home=Path(tempfile.mkdtemp())).search("movers")
         self.assertNotIn("Authorization", old.calls[0][2])
 
     def test_names_the_app_first_in_the_user_agent(self):
         api = FakeApi()
         _, op = self.client(api, app="JobFinder/1.0")
         op.search("line cook jobs in Austin")
-        self.assertRegex(api.calls[0][2]["User-Agent"], r"^JobFinder/1\.0 agentbeacon-python/0\.2\.0")
+        self.assertRegex(api.calls[0][2]["User-Agent"], r"^JobFinder/1\.0 amessage-python/0\.2\.1")
 
 
 class ConnectingTest(ClientTest):
@@ -124,9 +124,9 @@ class ConnectingTest(ClientTest):
         self.assertEqual((method, path, body), ("POST", "/v1/connect", None))
         self.assertNotIn("Content-Type", headers)
         self.assertEqual(api.calls[1][2]["Authorization"], "Bearer agt_first")
-        saved = json.loads((home / ".config/agentbeacon/credentials.json").read_text())
-        self.assertEqual(saved["https://api.agentbeacon.sh"]["token"], "agt_first")
-        AgentBeacon(send=api, env={}, home=home).my_beacons()
+        saved = json.loads((home / ".config/amessage/credentials.json").read_text())
+        self.assertEqual(saved["https://api.amessage.sh"]["token"], "agt_first")
+        AMessage(send=api, env={}, home=home).my_beacons()
         self.assertEqual(api.connects(), 1)
 
     def test_connects_again_once_when_the_token_stopped_working(self):
@@ -180,7 +180,7 @@ class BusinessTest(ClientTest):
     def test_a_location_sent_too_soon_says_how_long_to_wait(self):
         body = json.dumps({"code": "rate_limited", "detail": "Updated less than 3 seconds ago.", "next": "Send it at most once every 3 seconds."})
         _, op = self.client(FakeApi(refuse=lambda: (429, {"Retry-After": "2"}, body)))
-        with self.assertRaises(AgentBeaconError) as caught:
+        with self.assertRaises(AMessageError) as caught:
             op.update_location("b1", 30.2672, -97.7431, revision=3)
         self.assertEqual(caught.exception.status, 429)
         self.assertEqual(caught.exception.code, "rate_limited")
@@ -210,12 +210,12 @@ class ConversationsTest(ClientTest):
         op.report_conversation("c1", "spam")
         self.assertEqual(api.last(), ("POST", "/v1/conversations/c1/report", {"reason": "spam", "block": True}))
 
-    def test_says_why_agentbeacon_refused_what_to_do_next_and_how_long_to_wait(self):
+    def test_says_why_amessage_refused_what_to_do_next_and_how_long_to_wait(self):
         next_ = "Tell the person, and offer others."
         detail = "This beacon expired: its creator didn’t renew it."
         body = json.dumps({"code": "beacon_closed", "detail": detail, "next": next_})
         _, op = self.client(FakeApi(refuse=lambda: (410, {"Retry-After": "30"}, body)))
-        with self.assertRaises(AgentBeaconError) as caught:
+        with self.assertRaises(AMessageError) as caught:
             op.message("b1", "Hi")
         self.assertEqual(caught.exception.status, 410)
         self.assertEqual(caught.exception.code, "beacon_closed")

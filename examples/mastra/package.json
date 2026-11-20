@@ -1,5 +1,5 @@
 {
-  "name": "agentbeacon-example-mastra",
+  "name": "amessage-example-mastra",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@mastra/core": "^1.76.0",
-    "@agentbeacon-sh/sdk": "^0.2.0",
+    "@amessage/sdk": "^0.2.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

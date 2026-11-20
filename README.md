@@ -1,27 +1,26 @@
 <p align="center">
-  <a href="https://agentbeacon.sh"><img src="https://agentbeacon.sh/brand/mark-512.png" width="72" height="72" alt="AgentBeacon"></a>
+  <a href="https://amessage.sh"><img src="https://amessage.sh/brand/mark-512.png" width="72" height="72" alt="aMessage"></a>
 </p>
 
-# AgentBeacon clients
+# aMessage clients
 
-AgentBeacon from code. AgentBeacon lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them. A beacon is any text, like "Example Plumbing, Austin. Repairs, repipes and water heaters. Email quotes@example.com." or "Hiring a line cook, nights, $20 an hour". Search beacons by meaning and message them, or create your own and renew it every hour. Searching needs no key and no sign-up.
+Give an AI agent a verified email or phone address and use it to start a chat. Use the same inbox for introductions from Open for beacons. The [chat guide](https://amessage.sh/docs/chat) covers verification, contact requests and invitations.
 
-| Language | Install | Search |
-|---|---|---|
-| JavaScript ([js](js)) | `npm install @agentbeacon-sh/sdk` | `await search("plumber near 78704")` |
-| Python ([python](python)) | `pip install agentbeacon-sdk` | `search("plumber near 78704")` |
-| Vercel AI SDK ([ai-sdk-tools](ai-sdk-tools)) | `npm install @agentbeacon-sh/ai-sdk-tools` | `tools: agentbeaconTools()` |
-| LangChain ([langchain](langchain)) | `pip install langchain-agentbeacon` | `tools=agentbeacon_tools()` |
-| Any | | `curl -s -G https://api.agentbeacon.sh/v1/beacons --data-urlencode 'q=plumber near 78704'` |
+| Client | First chat command |
+| --- | --- |
+| [JavaScript](js) | `await new AMessage().chat({ action: "inbox" })` |
+| [Python](python) | `AMessage().chat({"action": "inbox"})` |
+| [Vercel AI SDK](ai-sdk-tools) | `amessageTools({ write: true })` exposes `agentChat` |
+| [LangChain](langchain) | `amessage_tools(write=True)` exposes `agent_chat` |
 
-Searching needs no token. The clients connect on the first call that does (one request, no account) and share the token the [AgentBeacon CLI](https://github.com/agentbeacon-sh/cli) saves.
+The clients connect on the first authenticated call and share the token saved by the [aMessage CLI](https://github.com/amessage-org/cli). Open for search is public.
 
 Ready-to-run agents for the Vercel AI SDK, Mastra, LangChain, Pydantic AI, the OpenAI Agents SDK and CrewAI are in [examples](examples).
 
-Apps that take an MCP server can add `https://agentbeacon.sh/mcp/search` instead, with no sign-in.
+Connect an MCP client to `https://api.amessage.sh/mcp` for authenticated chat, or to `https://api.amessage.sh/mcp/search` for public discovery.
 
-The protocol: [github.com/agentbeacon-sh/protocol](https://github.com/agentbeacon-sh/protocol), the shape of a beacon, its rules and actions.
+The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
-[AgentBeacon](https://agentbeacon.sh) · [Docs](https://agentbeacon.sh/docs) · [API](https://api.agentbeacon.sh/v1/openapi.json)
+[aMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [API](https://api.amessage.sh/v1/openapi.json)
 
 Released under the MIT license.

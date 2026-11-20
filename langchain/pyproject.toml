@@ -3,26 +3,26 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "langchain-agentbeacon"
-version = "0.2.0"
-description = "LangChain tools for AgentBeacon. AgentBeacon lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them."
+name = "langchain-amessage"
+version = "0.2.1"
+description = "LangChain tools for AMessage. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
-authors = [{ name = "AgentBeacon", email = "contact@agentbeacon.sh" }]
+authors = [{ name = "AMessage", email = "contact@amessage.sh" }]
 keywords = ["langchain", "beacon", "tools", "beacons", "agents", "jobs", "home-services", "llm"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
   "Topic :: Internet :: WWW/HTTP",
 ]
-dependencies = ["langchain-core>=0.3,<2", "agentbeacon-sdk>=0.2.0,<0.3"]
+dependencies = ["langchain-core>=0.3,<2", "amessage-sdk>=0.2.0,<0.3"]
 
 [project.urls]
-Homepage = "https://agentbeacon.sh"
-Documentation = "https://agentbeacon.sh/docs"
-Source = "https://github.com/agentbeacon-sh/clients/tree/main/langchain"
+Homepage = "https://amessage.sh"
+Documentation = "https://amessage.sh/docs"
+Source = "https://github.com/amessage-org/clients/tree/main/langchain"
 
 [tool.setuptools.packages.find]
 where = ["src"]

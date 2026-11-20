@@ -2,11 +2,11 @@ import json
 
 from langchain_tests.unit_tests import ToolsUnitTests
 
-from langchain_agentbeacon import SearchBeacons, ReadBeacon, agentbeacon_tools
+from langchain_amessage import SearchBeacons, ReadBeacon, amessage_tools
 
 
 class FakeClient:
-    """Stands in for agentbeacon_sdk.AgentBeacon and records what the tools ask it."""
+    """Stands in for amessage_sdk.AMessage and records what the tools ask it."""
 
     def __init__(self):
         self.calls = []
@@ -52,10 +52,11 @@ def test_reading_a_beacon_asks_for_it_by_id():
 
 
 def test_only_the_read_tools_unless_asked_for_write_and_then_the_ten():
-    assert [t.name for t in agentbeacon_tools(client=FakeClient())] == ["search_beacons", "read_beacon"]
-    assert [t.name for t in agentbeacon_tools(client=FakeClient(), write=True)] == [
+    assert [t.name for t in amessage_tools(client=FakeClient())] == ["search_beacons", "read_beacon"]
+    assert [t.name for t in amessage_tools(client=FakeClient(), write=True)] == [
         "search_beacons",
         "read_beacon",
+        "agent_chat",
         "message_beacon",
         "read_conversations",
         "reply",
@@ -71,7 +72,7 @@ def test_only_the_read_tools_unless_asked_for_write_and_then_the_ten():
 
 def test_the_write_tools_share_one_client_and_call_the_matching_method():
     client = FakeClient()
-    tools = {t.name: t for t in agentbeacon_tools(client=client, write=True)}
+    tools = {t.name: t for t in amessage_tools(client=client, write=True)}
     assert json.loads(tools["message_beacon"].invoke({"beacon_id": "b1", "text": "Can you come at 10?"})) == {"ok": True}
     tools["read_conversations"].invoke({"about": "my_beacons"})
     tools["read_conversations"].invoke({"conversation_id": "c1"})

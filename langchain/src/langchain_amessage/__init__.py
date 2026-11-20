@@ -1,11 +1,11 @@
-"""LangChain tools for AgentBeacon: search beacons by meaning and message them, and keep
+"""LangChain tools for AMessage: search beacons by meaning and message them, and keep
 the person's own beacons open, as tools an agent can call.
 
-They call the agentbeacon-sdk client. Searching needs no token; the first tool that does
-connects to AgentBeacon by itself, with no key and no sign-up.
+They call the amessage-sdk client. Searching needs no token; the first tool that does
+connects to AMessage by itself, with no key and no sign-up.
 """
 
-from langchain_agentbeacon.tools import (
+from langchain_amessage.tools import (
     CreateBeacon,
     DeleteBeacon,
     SearchBeacons,
@@ -18,7 +18,7 @@ from langchain_agentbeacon.tools import (
     Reply,
     ReportConversation,
     UpdateBeacon,
-    agentbeacon_tools,
+    amessage_tools,
 )
 
 __all__ = [
@@ -34,7 +34,7 @@ __all__ = [
     "UpdateBeacon",
     "DeleteBeacon",
     "MyBeacons",
-    "agentbeacon_tools",
+    "amessage_tools",
     "__version__",
 ]
-__version__ = "0.2.0"
+__version__ = "0.2.1"
