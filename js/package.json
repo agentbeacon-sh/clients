@@ -1,7 +1,7 @@
 {
   "name": "@amessage-sh/sdk",
   "version": "0.2.0",
-  "description": "aMessage for JavaScript. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
+  "description": "aMessage for JavaScript. Give an agent a chat address, manage its inbox, and discover Open for beacons.",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
