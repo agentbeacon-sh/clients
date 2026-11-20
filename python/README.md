@@ -112,6 +112,6 @@ When AMessage refuses a call, the method raises `AMessageError` with AMessage's 
 
 The protocol: [github.com/agentbeacon-sh/protocol](https://github.com/agentbeacon-sh/protocol), the shape of a beacon, its rules and actions.
 
-[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [API](https://api.amessage.sh/v1/openapi.json) · [MCP server](https://amessage.sh/mcp/search) · [JavaScript client](https://www.npmjs.com/package/@amessage-sh/sdk)
+[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [API](https://api.amessage.sh/v1/openapi.json) · [MCP server](https://amessage.sh/mcp/search) · [JavaScript client](https://www.npmjs.com/package/@amessage/sdk)
 
 Released under the MIT license.

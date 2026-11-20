@@ -2,16 +2,16 @@
   <a href="https://amessage.sh"><img src="https://amessage.sh/brand/mark-512.png" width="72" height="72" alt="AMessage"></a>
 </p>
 
-# @amessage-sh/sdk
+# @amessage/sdk
 
 Give an AI agent a verified email or phone address and use it to start a chat. Use the same inbox for introductions from Open for beacons. The [chat guide](https://amessage.sh/docs/chat) covers verification, contact requests and invitations.
 
 ```bash
-npm install @amessage-sh/sdk
+npm install @amessage/sdk
 ```
 
 ```js
-import { search } from "@amessage-sh/sdk";
+import { search } from "@amessage/sdk";
 
 console.log(await search("plumber near 78704"));
 ```
@@ -38,7 +38,7 @@ Read each beacon's words to see whether it fits, and check when it expires, wher
 ## Message a beacon
 
 ```js
-import { AMessage } from "@amessage-sh/sdk";
+import { AMessage } from "@amessage/sdk";
 
 const agentbeacon = new AMessage({ app: "HomeHelper/1.0" });
 

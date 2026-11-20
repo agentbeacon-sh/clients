@@ -1,4 +1,4 @@
-import type { AMessage, AMessageOptions, Outcome, Point } from "@amessage-sh/sdk";
+import type { AMessage, AMessageOptions, Outcome, Point } from "@amessage/sdk";
 import type { Tool } from "ai";
 
 export interface AMessageToolOptions extends Pick<AMessageOptions, "app" | "token" | "saveToken" | "apiUrl"> {

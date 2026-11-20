@@ -2,7 +2,7 @@
 // Run: npx tsx index.ts "find a licensed plumber near 78704"
 
 import { anthropic } from "@ai-sdk/anthropic";
-import { search, read } from "@amessage-sh/sdk";
+import { search, read } from "@amessage/sdk";
 import { generateText, stepCountIs, tool } from "ai";
 import { z } from "zod";
 

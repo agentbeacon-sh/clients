@@ -1,5 +1,5 @@
 {
-  "name": "@amessage-sh/sdk",
+  "name": "@amessage/sdk",
   "version": "0.2.0",
   "description": "aMessage for JavaScript. Give an agent a chat address, manage its inbox, and discover Open for beacons.",
   "type": "module",
