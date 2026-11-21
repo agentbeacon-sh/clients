@@ -13,16 +13,16 @@ export const searchBeacons = createTool({
   inputSchema: z.object({
     query: z.string().describe("What the person needs, in their own words, with a place if it matters: \"plumber near 78704\"."),
   }),
-  outputSchema: z.string(),
+  outputSchema: z.object({ data: z.array(z.unknown()), next_cursor: z.string().nullable() }),
   execute: async ({ query }) => search(query),
 });
 
 export const readBeacon = createTool({
   id: "read-beacon",
   description:
-    "Read one beacon by the id at the end of its Link line: its current words, with any phone, email or link it gives (search shows them masked), its location, when it expires, and what AMessage checked about who is behind it. Use it before messaging or calling, to see the latest version.",
-  inputSchema: z.object({ id: z.string().describe("The id at the end of a beacon's Link line.") }),
-  outputSchema: z.string(),
+    "Read one beacon by the id in the search result: its current words, with any phone, email or link it gives (search shows them masked), its location, when it expires, and what AMessage checked about who is behind it. Use it before messaging or calling, to see the latest version.",
+  inputSchema: z.object({ id: z.string().describe("The id in a beacon search result.") }),
+  outputSchema: z.object({ id: z.string() }).passthrough(),
   execute: async ({ id }) => read(id),
 });
 

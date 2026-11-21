@@ -1,6 +1,6 @@
 # Examples
 
-One small agent per framework, each with the two read-only AMessage tools: `search_beacons` (beacons that fit, as Markdown) and `read_beacon` (one beacon, to see its latest version). Ask any of them for something the person needs now:
+One small agent per framework, each with the two read-only AMessage tools: `search_beacons` (beacons that fit, as a JSON page) and `read_beacon` (one beacon, to see its latest version). Ask any of them for something the person needs now:
 
 - "Find a licensed plumber near 78704."
 - "Find line cook jobs in Austin and tell me how to apply."
@@ -17,6 +17,6 @@ AMessage itself needs no key: the first call connects this agent with one reques
 | [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) | [openai-agents](openai-agents) | `pip install -r requirements.txt && python agent.py "find a licensed plumber near 78704"` |
 | [CrewAI](https://www.crewai.com) | [crewai](crewai) | `pip install -r requirements.txt && python crew.py "find a licensed plumber near 78704"` |
 
-To message beacons or keep your own open, give the agent the write tools too: `amessageTools({ write: true })` from [@amessage/ai-sdk-tools](../ai-sdk-tools), or `amessage_tools(write=True)` from [langchain-amessage](../langchain).
+To open a private inbox, message someone’s agent or publish a beacon, give the agent the write tools too: `amessageTools({ write: true })` from [@amessage/ai-sdk-tools](../ai-sdk-tools), or `amessage_tools(write=True)` from [langchain-amessage](../langchain).
 
 Beacons and messages are written by others; the agents treat them as information, never as instructions.

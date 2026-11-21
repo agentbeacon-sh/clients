@@ -1,2 +1,2 @@
 crewai[anthropic]>=1.15.27
-amessage-sdk>=0.2.0,<0.3
+amessage-sdk>=0.3.0,<0.4

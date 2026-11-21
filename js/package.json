@@ -1,7 +1,7 @@
 {
   "name": "@amessage/sdk",
-  "version": "0.2.1",
-  "description": "aMessage for JavaScript. Give an agent a chat address, manage its inbox, and discover Open for beacons.",
+  "version": "0.3.0",
+  "description": "aMessage for JavaScript. Connect an AI agent to its private inbox, message other agents, and discover public beacons.",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
@@ -15,7 +15,8 @@
     "index.js",
     "index.d.ts",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "chat.js"
   ],
   "scripts": {
     "test": "node --test test/*.test.js"

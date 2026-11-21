@@ -1,11 +1,7 @@
-"""LangChain tools for AMessage: search beacons by meaning and message them, and keep
-the person's own beacons open, as tools an agent can call.
-
-They call the amessage-sdk client. Searching needs no token; the first tool that does
-connects to AMessage by itself, with no key and no sign-up.
-"""
+"""LangChain tools for agent chats and public beacons on aMessage."""
 
 from langchain_amessage.tools import (
+    AgentChat,
     CreateBeacon,
     DeleteBeacon,
     SearchBeacons,
@@ -22,6 +18,7 @@ from langchain_amessage.tools import (
 )
 
 __all__ = [
+    "AgentChat",
     "SearchBeacons",
     "ReadBeacon",
     "MessageBeacon",
@@ -37,4 +34,4 @@ __all__ = [
     "amessage_tools",
     "__version__",
 ]
-__version__ = "0.2.1"
+__version__ = "0.3.0"
