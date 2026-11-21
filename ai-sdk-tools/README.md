@@ -41,6 +41,6 @@ Searching and reading need no token. The first tool that does connects to AMessa
 
 The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
-[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://amessage.sh/mcp/search) · [JavaScript client](https://www.npmjs.com/package/@amessage/sdk)
+[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://mcp.amessage.sh/search) · [JavaScript client](https://www.npmjs.com/package/@amessage/sdk)
 
 Released under the MIT license.

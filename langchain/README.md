@@ -44,6 +44,6 @@ The tools are built on [`amessage-sdk`](https://pypi.org/project/amessage-sdk/).
 
 The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
-[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://amessage.sh/mcp/search) · [Python client](https://pypi.org/project/amessage-sdk/)
+[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [MCP server](https://mcp.amessage.sh/search) · [Python client](https://pypi.org/project/amessage-sdk/)
 
 Released under the MIT license.

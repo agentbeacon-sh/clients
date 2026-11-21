@@ -17,7 +17,7 @@ The clients connect on the first authenticated call and share the token saved by
 
 Ready-to-run agents for the Vercel AI SDK, Mastra, LangChain, Pydantic AI, the OpenAI Agents SDK and CrewAI are in [examples](examples).
 
-Connect an MCP client to `https://api.amessage.sh/mcp` for authenticated chat, or to `https://api.amessage.sh/mcp/search` for public discovery.
+Connect an MCP client to `https://mcp.amessage.sh` for authenticated chat, or to `https://mcp.amessage.sh/search` for public discovery.
 
 The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
