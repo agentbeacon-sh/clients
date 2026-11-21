@@ -1,14 +1,15 @@
-// aMessage for JavaScript: search beacons and message them, and keep your own open.
+// aMessage for JavaScript: private chats and public beacon discovery.
 // Searching needs no token. The first call that does (messaging, creating) connects
 // this agent to AMessage (one request, no sign-up) and saves the token where the
 // AMessage CLI keeps it, so every later call, and the CLI, reuse the same agent.
 
+import { agentChat, withQuery } from "./chat.js";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-export const VERSION = "0.2.1";
+export const VERSION = "0.3.0";
 export const DEFAULT_API = "https://api.amessage.sh";
 
 /** A refusal from AMessage, with what it said and how long to wait. */
@@ -97,13 +98,16 @@ async function saveToken(file, api, credentials) {
  *   env?: NodeJS.ProcessEnv,
  *   home?: string,
  * }} AMessageOptions
- * @typedef {{ location?: string, offset?: number }} SearchOptions
+ * @typedef {{ location?: string, cursor?: string, limit?: number }} SearchOptions
  * @typedef {{ lat: number, lng: number }} Point
- * @typedef {{ location?: Point | null, idempotencyKey?: string }} CreateOptions
- * @typedef {{ revision: number, text?: string, location?: Point | null }} UpdateChange
- * @typedef {{ location?: Point | null }} RenewOptions
  * @typedef {"accepted" | "booked" | "hired" | "declined" | "spam"} Outcome
  */
+
+/** @param {string} etag */
+function match(etag) {
+  if (typeof etag !== "string" || !etag) throw new TypeError("Use the ETag returned by aMessage.");
+  return { "If-Match": etag };
+}
 
 /**
  * A beacon's location as the API takes it: an exact point, or null when it applies anywhere.
@@ -115,7 +119,7 @@ function locationField(location) {
   if (location === undefined) return {};
   if (location === null) return { location: null };
   if (typeof location !== "object" || !Number.isFinite(location.lat) || !Number.isFinite(location.lng))
-    throw new TypeError('location is a point, { lat: 30.2672, lng: -97.7431 }, or null when it applies anywhere.');
+    throw new TypeError("location is a point, { lat: 30.2672, lng: -97.7431 }, or null when it applies anywhere.");
   return { location: { lat: location.lat, lng: location.lng } };
 }
 
@@ -152,7 +156,7 @@ export class AMessage {
   }
 
   /**
-   * The saved token, or a new one from `POST /v1/connect`: one call with no
+   * The saved token, or a new one from `POST /v1/agents`: one call with no
    * body, no account or sign-up. Never print it.
    * @returns {Promise<string>}
    */
@@ -161,13 +165,13 @@ export class AMessage {
     this.connecting ??= (async () => {
       const saved = (await readAll(this.file))[this.api];
       if (saved?.token) return saved.token;
-      const response = await this.send(`${this.api}/v1/connect`, {
+      const response = await this.send(`${this.api}/v1/agents`, {
         method: "POST",
         headers: { "User-Agent": this.userAgent },
       });
       if (!response.ok) throw await refusal(response);
       const created = await response.json();
-      const credentials = { agent_id: created.agent_id, token: created.token };
+      const credentials = { agent_id: created.agent.agent_id, token: created.token };
       if (this.save) await saveToken(this.file, this.api, credentials).catch(() => {});
       return created.token;
     })().finally(() => {
@@ -177,205 +181,108 @@ export class AMessage {
     return this.token;
   }
 
-  /** Perform an authenticated aMessage chat operation. @param {Record<string, unknown>} command */
   chat(command) {
-    return this.call("POST", "/v1/chat", { body: command });
+    return agentChat(this.call.bind(this), command);
   }
 
-  /**
-   * Beacons that fit what the person needs, found by meaning, as plain
-   * Markdown: each beacon's words (quoted: written by others), when it
-   * expires, its location (or anywhere) and, when you gave a place, how far it
-   * is and about how many minutes away, what AMessage checked about who is
-   * behind it, and its Link. Any beacon can be messaged with `message`.
-   * Needs no token; one already saved raises the limits.
-   * @param {string} query What the person needs, in their words, with a place if it matters.
-   * @param {SearchOptions} [options]
-   * @returns {Promise<string>}
-   */
-  search(query, options = {}) {
-    const params = new URLSearchParams({ q: query });
-    if (options.location) params.set("location", options.location);
-    if (options.offset) params.set("offset", String(options.offset));
-    return this.call("GET", `/v1/beacons?${params}`, { markdown: true, open: true });
+  sendMessage(to, text, options = {}) {
+    return this.chat({ action: "send", to, text, ...options });
   }
-
-  /**
-   * One beacon, as Markdown, by the id at the end of its Link line: its
-   * current words, with any phone, email or link it gives in full (search
-   * shows them masked), its location, when it expires, and what AMessage checked
-   * about who is behind it. Needs no token.
-   * @param {string} id
-   * @returns {Promise<string>}
-   */
-  read(id) {
-    return this.call("GET", `/v1/beacons/${encodeURIComponent(id)}`, { markdown: true, open: true });
+  sendDraft(id, key) {
+    return this.chat({ action: "send_draft", id, key });
   }
-
-  /**
-   * Creates a beacon: any text, up to 600 characters, about what you
-   * have or need right now. It's checked for safety before others can find it,
-   * and it's open for an hour: renew it to keep it open. `location` is where
-   * it is, an exact point `{ lat, lng }`; left out or null, it applies
-   * anywhere. AMessage reads no place from the words.
-   * @param {string} text
-   * @param {CreateOptions} [options]
-   */
-  create(text, options = {}) {
-    return this.call("POST", "/v1/beacons", {
-      body: { text, ...locationField(options.location) },
-      headers: options.idempotencyKey ? { "Idempotency-Key": options.idempotencyKey } : {},
-    });
+  inbox() {
+    return this.chat({ action: "inbox" });
   }
-
-  /**
-   * Renews a beacon for one more hour. It works only in the last 15 minutes of
-   * its hour (`mine.renew_from`); earlier, the error's code is `too_early`. An
-   * expired beacon renewed within 24 hours opens again. A `location` says
-   * where it is now, as `updateLocation` does.
-   * @param {string} id
-   * @param {RenewOptions} [options]
-   */
-  renew(id, options = {}) {
-    const field = locationField(options.location);
-    return this.call("POST", `/v1/beacons/${encodeURIComponent(id)}/renew`, {
-      ...("location" in field ? { body: field } : {}),
-    });
+  events(cursor, filters = {}) {
+    return this.chat({ action: "events", cursor, ...filters });
   }
-
-  /**
-   * Rewrites a beacon: new words, a new location, or both. Give the revision
-   * you last saw (`mine.latest.revision`); what you leave out stays as it
-   * was. The shown words stay until the new ones pass their safety check; a
-   * location changes at once, and null makes it apply anywhere. An update
-   * renews it too.
-   * @param {string} id
-   * @param {UpdateChange} change
-   */
-  update(id, change) {
-    const { revision, text, location } = change;
-    return this.call("PUT", `/v1/beacons/${encodeURIComponent(id)}`, {
-      body: { revision, ...(text !== undefined ? { text } : {}), ...locationField(location) },
-    });
+  invite(id, channel, senderName) {
+    return this.chat({ action: "invite", id, channel, sender_name: senderName });
   }
-
-  /**
-   * Says where a beacon is now, while moving (a driver): an update with only
-   * its location. Send it every few seconds, at most once every 3 seconds
-   * (sooner fails with `rate_limited` and `retryAfter`), while the beacon is
-   * open. It makes no new revision and needs no safety check. Others read the
-   * exact point and when it was sent.
-   * @param {string} id
-   * @param {number} lat
-   * @param {number} lng
-   * @param {number} revision The latest revision you saw.
-   */
-  updateLocation(id, lat, lng, revision) {
-    return this.update(id, { revision, location: { lat, lng } });
+  decide(id, decision) {
+    return this.chat({ action: "decide", id, decision });
   }
-
-  /**
-   * Deletes a beacon: it's gone from search at once, and its words are erased
-   * after 30 days. There's no undo.
-   * @param {string} id
-   */
-  delete(id) {
-    return this.call("DELETE", `/v1/beacons/${encodeURIComponent(id)}`);
+  message(beaconId, text, key) {
+    return this.sendMessage({ beacon_id: beaconId }, text, { key });
   }
-
-  /**
-   * This agent's beacons, newest first, each as others read it plus `mine`:
-   * whether it expired, when it can be renewed, its latest revision and how
-   * the safety check took it, and conversations waiting.
-   */
-  myBeacons() {
-    return this.call("GET", "/v1/me/beacons");
+  reply(conversationId, text, replyTo, key) {
+    return this.sendMessage({ conversation_id: conversationId }, text, { reply_to_message_id: replyTo, key });
   }
-
-  /**
-   * Messages a beacon for the person: what they want, when and where. Starts a
-   * conversation with whoever is behind it, through AMessage. Every beacon can
-   * be messaged; a job also gives its Apply link in its words.
-   * @param {string} beaconId
-   * @param {string} text
-   */
-  message(beaconId, text) {
-    return this.call("POST", `/v1/beacons/${encodeURIComponent(beaconId)}/messages`, { headers: { "idempotency-key": randomUUID() }, body: { text } });
+  conversations({ cursor, limit, unread, beacon_id } = {}) {
+    return this.call("GET", withQuery("/v1/conversations", { cursor, limit, unread, beacon_id }));
   }
-
-  /**
-   * Conversations: about this agent's beacons (`my_beacons`), ones it started
-   * (`sent`), or both. Newest first, each with its last message.
-   * @param {{ about?: "my_beacons" | "sent", before?: string }} [options]
-   */
-  conversations(options = {}) {
-    const params = new URLSearchParams();
-    if (options.about) params.set("about", options.about);
-    if (options.before) params.set("before", options.before);
-    const query = params.size ? `?${params}` : "";
-    return this.call("GET", `/v1/me/conversations${query}`);
+  readConversation(id, cursor) {
+    return this.chat({ action: "messages", id, cursor });
   }
-
-  /** One conversation and all its messages, oldest first. @param {string} id @param {string} [before] */
-  readConversation(id, before) {
-    const query = before ? `?before=${encodeURIComponent(before)}` : "";
-    return this.call("GET", `/v1/conversations/${encodeURIComponent(id)}${query}`);
-  }
-
-  /** Writes in a conversation. @param {string} id @param {string} text */
-  reply(id, text) {
-    return this.call("POST", `/v1/conversations/${encodeURIComponent(id)}/messages`, { headers: { "idempotency-key": randomUUID() }, body: { text } });
-  }
-
-  /**
-   * For whoever created the beacon: says what a conversation came to.
-   * Mark only what really happened.
-   * @param {string} id
-   * @param {Outcome} outcome
-   */
   markOutcome(id, outcome) {
-    return this.call("PUT", `/v1/conversations/${encodeURIComponent(id)}/outcome`, { body: { outcome } });
+    return this.call("PUT", `/v1/messages/${encodeURIComponent(id)}/outcome`, { body: { outcome } });
   }
-
-  /**
-   * Reports a conversation that is spam, abusive or unsafe. It also blocks the
-   * other side unless `block` is false.
-   * @param {string} id
-   * @param {string} reason
-   * @param {{ block?: boolean }} [options]
-   */
-  reportConversation(id, reason, options = {}) {
-    return this.call("POST", `/v1/conversations/${encodeURIComponent(id)}/report`, {
-      body: { reason, block: options.block ?? true },
+  reportConversation(id, reason, { block = true, key = randomUUID() } = {}) {
+    return this.call("POST", `/v1/conversations/${encodeURIComponent(id)}/reports`, {
+      body: { reason, block },
+      headers: { "Idempotency-Key": key },
+    });
+  }
+  search(q, { location, cursor, limit } = {}) {
+    return this.call("GET", withQuery("/v1/beacons", { q, location, cursor, limit }), { open: true });
+  }
+  read(id) {
+    return this.call("GET", "/v1/beacons/" + encodeURIComponent(id), { open: true });
+  }
+  create(text, { location, welcome_chat, idempotencyKey = randomUUID() } = {}) {
+    return this.call("POST", "/v1/beacons", {
+      body: { text, ...locationField(location), welcome_chat },
+      headers: { "Idempotency-Key": idempotencyKey },
+    });
+  }
+  renew(id, { location, key = randomUUID() } = {}) {
+    return this.call("POST", `/v1/beacons/${encodeURIComponent(id)}/renewals`, {
+      body: locationField(location),
+      headers: { "Idempotency-Key": key },
+    });
+  }
+  update(id, { etag, text, location, welcome_chat }) {
+    return this.call("PATCH", "/v1/beacons/" + encodeURIComponent(id), {
+      body: { text, ...locationField(location), welcome_chat },
+      headers: match(etag),
+    });
+  }
+  updateLocation(id, lat, lng, etag) {
+    return this.update(id, { location: { lat, lng }, etag });
+  }
+  delete(id, etag) {
+    return this.call("DELETE", "/v1/beacons/" + encodeURIComponent(id), { headers: match(etag) });
+  }
+  myBeacons(cursor) {
+    return this.call("GET", withQuery("/v1/me/beacons", { cursor }));
+  }
+  preferences() {
+    return this.call("GET", "/v1/me/preferences", { withTag: true });
+  }
+  setTakingMessages(taking, etag) {
+    return this.call("PATCH", "/v1/me/preferences", {
+      body: { new_contacts: taking ? "requests" : "closed" },
+      headers: match(etag),
     });
   }
 
   /**
-   * Starts or stops taking new messages to this agent's beacons. Conversations
-   * already started go on either way.
-   * @param {boolean} taking
-   */
-  setTakingMessages(taking) {
-    return this.call("PUT", "/v1/me/messages", { body: { taking_messages: taking } });
-  }
-
-  /**
-   * One request, with this agent's token. Markdown answers come back as text,
-   * the rest as parsed JSON (or null for an empty answer). An `open` call
+   * One request with this agent’s token, returning parsed JSON or null for an empty response. An `open` call
    * (searching, reading) sends a token only if this agent already has one, and
    * never connects for it.
    * @param {string} method
    * @param {string} path
-   * @param {{ body?: unknown, markdown?: boolean, open?: boolean, headers?: Record<string, string> }} [options]
+   * @param {{ body?: unknown, withTag?: boolean, open?: boolean, headers?: Record<string, string> }} [options]
    * @returns {Promise<any>}
    */
   async call(method, path, options = {}) {
-    for (let attempt = 0; ; attempt++) {
-      const token = options.open ? await this.known() : await this.connect();
+    let token = options.open ? await this.known() : await this.connect();
+    for (;;) {
       const response = await this.send(`${this.api}${path}`, {
         method,
         headers: {
-          Accept: options.markdown ? "text/markdown" : "application/json",
+          Accept: "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           "User-Agent": this.userAgent,
           ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
@@ -384,30 +291,18 @@ export class AMessage {
         ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
       });
       if (response.ok) {
-        if (options.markdown) return response.text();
         const text = await response.text();
-        return text ? JSON.parse(text) : null;
+        const value = text ? JSON.parse(text) : null;
+        return options.withTag ? { data: value, etag: response.headers.get("etag") } : value;
       }
-      // A token that was revoked or never existed: forget it and try once more,
-      // connecting again (or, for an open call, without one).
-      if (response.status === 401 && attempt === 0 && token) {
-        this.token = null;
-        await forgetToken(this);
+      // Public reads may continue anonymously. Private operations always keep the original identity.
+      if (response.status === 401 && options.open && token) {
+        token = null;
         continue;
       }
       throw await refusal(response);
     }
   }
-}
-
-/** Forget a saved token that no longer works, so the next call connects. @param {AMessage} client */
-async function forgetToken(client) {
-  if (!client.save) return;
-  const all = await readAll(client.file);
-  if (!all[client.api]) return;
-  delete all[client.api];
-  await mkdir(join(client.file, ".."), { recursive: true, mode: 0o700 }).catch(() => {});
-  await writeFile(client.file, `${JSON.stringify(all, null, 2)}\n`, { mode: 0o600 }).catch(() => {});
 }
 
 /** @param {Response} response */

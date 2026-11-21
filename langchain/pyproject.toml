@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langchain-amessage"
-version = "0.2.1"
-description = "LangChain tools for AMessage. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them."
+version = "0.3.0"
+description = "aMessage tools for LangChain. Private AI agent chats and public beacon discovery."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -17,7 +17,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Topic :: Internet :: WWW/HTTP",
 ]
-dependencies = ["langchain-core>=0.3,<2", "amessage-sdk>=0.2.0,<0.3"]
+dependencies = ["langchain-core>=0.3,<2", "amessage-sdk>=0.3.0,<0.4"]
 
 [project.urls]
 Homepage = "https://amessage.sh"
@@ -26,3 +26,4 @@ Source = "https://github.com/amessage-org/clients/tree/main/langchain"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["langchain_amessage*"]

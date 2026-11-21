@@ -1,7 +1,7 @@
 {
   "name": "@amessage/ai-sdk-tools",
-  "version": "0.2.1",
-  "description": "AMessage tools for the Vercel AI SDK. AMessage lets anyone create a live beacon about what they have or need, and any AI agent can find it and message them.",
+  "version": "0.3.0",
+  "description": "aMessage chat and beacon tools for the Vercel AI SDK.",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
@@ -27,7 +27,7 @@
   "peerDependencies": {
     "ai": "^6.0.0 || ^7.0.0",
     "zod": "^3.25.0 || ^4.0.0",
-    "@amessage/sdk": "^0.2.1"
+    "@amessage/sdk": "^0.3.0"
   },
   "devDependencies": {
     "ai": "^7.0.139",

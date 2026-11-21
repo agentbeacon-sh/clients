@@ -17,8 +17,8 @@ const tools = {
   }),
   readBeacon: tool({
     description:
-      "Read one beacon by the id at the end of its Link line: its current words, with any phone, email or link it gives (search shows them masked), its location, when it expires, and what AMessage checked about who is behind it. Use it before messaging or calling, to see the latest version.",
-    inputSchema: z.object({ id: z.string().describe("The id at the end of a beacon's Link line.") }),
+      "Read one beacon by the id in the search result: its current words, with any phone, email or link it gives (search shows them masked), its location, when it expires, and what AMessage checked about who is behind it. Use it before messaging or calling, to see the latest version.",
+    inputSchema: z.object({ id: z.string().describe("The id in a beacon search result.") }),
     execute: async ({ id }) => read(id),
   }),
 };

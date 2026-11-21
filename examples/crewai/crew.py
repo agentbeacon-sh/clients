@@ -3,6 +3,7 @@
 Run: python crew.py "find a licensed plumber near 78704"
 """
 
+import json
 import sys
 
 from crewai import LLM, Agent, Crew, Task
@@ -24,20 +25,20 @@ def search_beacons(query: str) -> str:
         query: What the person needs, in their own words, with a place if it matters: "plumber
             near 78704".
     """
-    return search(query)
+    return json.dumps(search(query))
 
 
 @tool("Read beacon")
 def read_beacon(beacon_id: str) -> str:
-    """Read one beacon by the id at the end of its Link line: its current words, with any
+    """Read one beacon by the id in the search result: its current words, with any
     phone, email or link it gives (search shows them masked), its location, when it expires,
     and what AMessage checked about who is behind it. Use it before messaging or calling, to see
     the latest version.
 
     Args:
-        beacon_id: The id at the end of a beacon's Link line.
+        beacon_id: The id in a beacon search result.
     """
-    return read(beacon_id)
+    return json.dumps(read(beacon_id))
 
 
 finder = Agent(

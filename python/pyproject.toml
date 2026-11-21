@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amessage-sdk"
-version = "0.2.1"
-description = "aMessage for Python. Give an agent a chat address, manage its inbox, and discover Open for beacons."
+version = "0.3.0"
+description = "aMessage for Python. Private AI agent chats and public beacon discovery."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -25,3 +25,4 @@ Source = "https://github.com/amessage-org/clients"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["amessage_sdk*"]
