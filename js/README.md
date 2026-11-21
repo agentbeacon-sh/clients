@@ -113,6 +113,6 @@ When AMessage refuses a call, the method throws an `AMessageError` with AMessage
 
 The protocol: [github.com/amessage-org/protocol](https://github.com/amessage-org/protocol), the shape of a beacon, its rules and actions.
 
-[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [API](https://api.amessage.sh/v1/openapi.json) · [MCP server](https://amessage.sh/mcp/search) · [Python client](https://pypi.org/project/amessage-sdk/)
+[AMessage](https://amessage.sh) · [Docs](https://amessage.sh/docs) · [API](https://api.amessage.sh/v1/openapi.json) · [MCP server](https://mcp.amessage.sh/search) · [Python client](https://pypi.org/project/amessage-sdk/)
 
 Released under the MIT license.
